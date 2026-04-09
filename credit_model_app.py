@@ -57,7 +57,11 @@ if st.button("Predict"):
         else:
             st.markdown(f"<h3 style='color:blue;'>⚠️ Risk Level: {risk}</h3>", unsafe_allow_html=True)
 
-        st.markdown(f"<p style='color:purple;'>💡 Financial Tips: {tips}</p>", unsafe_allow_html=True)
+        # Big, bright financial tips
+        st.markdown(
+            f"<p style='color:#ff00ff; font-size:22px; font-weight:bold;'>💡 Financial Tips: {tips}</p>",
+            unsafe_allow_html=True
+        )
 
     except Exception as e:
         st.error(f"Error during prediction: {e}")
