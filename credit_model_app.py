@@ -2,37 +2,35 @@ import streamlit as st
 import numpy as np
 import joblib
 
+# Load model & encoder
 model = joblib.load("credit_model.pkl")
-le = joblib.load("label_encoder.pkl")
-
-st.write("Model expects:", model.n_features_in_)
+le = joblib.load("label_encoder.pkl")  # Payment_Behaviour encoder
 
 st.title("💳 Credit Score Predictor")
 
+# Inputs
 income = st.number_input("Annual Income", min_value=0.0)
 debt = st.number_input("Outstanding Debt", min_value=0.0)
+payment = st.selectbox("Payment Behaviour", le.classes_)  # dropdown shows strings
 
-payment_behavior = st.selectbox(
-    "Payment Behaviour",
-    ["Low_spent", "High_spent", "Average"]  # adjust based on dataset
-)
-
+# Predict button
 if st.button("Predict"):
+    # Encode Payment_Behaviour to integer
+    payment_encoded = le.transform([payment])[0]
 
-    # Encode
-    payment_encoded = le.transform([payment_behavior])[0]
-
-    # Feature engineering (same as training)
+    # Calculate debt ratio
     debt_ratio = debt / income if income != 0 else 0
 
-    # ✅ NOW 4 FEATURES (matches training)
+    # Create feature array in correct order
     features = np.array([[income, debt, payment_encoded, debt_ratio]])
 
-    prediction = model.predict(features)
+    # Make prediction
+    prediction = model.predict(features)[0]
 
-    if prediction[0] == 0:
+    # Map prediction to readable category
+    if prediction == 0:
         result = "Poor"
-    elif prediction[0] == 1:
+    elif prediction == 1:
         result = "Standard"
     else:
         result = "Good"
