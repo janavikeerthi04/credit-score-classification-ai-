@@ -28,23 +28,24 @@ try:
     
     df = df[cols].copy()
 
-    # FIX: Clean strings and convert to numbers
-    # This removes underscores or spaces and turns "1234_" into 1234.0
-    for col in ['Annual_Income', 'Outstanding_Debt', 'Num_of_Delayed_Payment']:
+    # FIX: Remove special characters (like '_') and convert to numbers
+    # We use regex to keep only digits and decimal points
+    numeric_cols_to_clean = ['Annual_Income', 'Outstanding_Debt', 'Num_of_Delayed_Payment']
+    for col in numeric_cols_to_clean:
         df[col] = pd.to_numeric(df[col].astype(str).str.replace(r'[^0-9.]', '', regex=True), errors='coerce')
 
-    # Handle missing values created by "coerce" (fill with median)
+    # Fill any missing values created by the cleaning process
     df = df.fillna(df.median(numeric_only=True))
     
-    # Encode the target (Credit_Score)
+    # Target Encoding
     le = LabelEncoder()
     df['Credit_Score'] = le.fit_transform(df['Credit_Score'].astype(str))
     
-    # Feature Engineering (Now math will work!)
+    # Feature Engineering (Math will work now!)
     df['debt_ratio'] = df['Outstanding_Debt'] / (df['Annual_Income'] + 1)
     df['payment_delay_impact'] = df['Num_of_Delayed_Payment'] * df['Interest_Rate']
     
-    print("✅ SUCCESS: Data Preprocessing complete! Numbers cleaned.")
+    print("✅ SUCCESS: Numbers cleaned and math completed!")
 except Exception as e:
     print(f"❌ ERROR in Preprocessing: {e}")
 
