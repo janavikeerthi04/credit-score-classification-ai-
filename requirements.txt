@@ -5,3 +5,7 @@ matplotlib
 seaborn
 streamlit
 xgboost
+openai
+altair<5
+pyarrow
+standard-inghdr
