@@ -47,9 +47,17 @@ if st.button("Predict"):
         risk = risk_mapping[result]
         tips = tips_mapping[result]
 
-        st.success(f"Predicted Credit Score Category: {result}")
-        st.warning(f"Risk Level: {risk}")
-        st.info(f"💡 Financial Tips: {tips}")
+        # Colored outputs using markdown
+        st.markdown(f"<h2 style='color:green;'>💳 Predicted Credit Score: {result}</h2>", unsafe_allow_html=True)
+
+        if risk == "High":
+            st.markdown(f"<h3 style='color:red;'>⚠️ Risk Level: {risk}</h3>", unsafe_allow_html=True)
+        elif risk == "Medium":
+            st.markdown(f"<h3 style='color:orange;'>⚠️ Risk Level: {risk}</h3>", unsafe_allow_html=True)
+        else:
+            st.markdown(f"<h3 style='color:blue;'>⚠️ Risk Level: {risk}</h3>", unsafe_allow_html=True)
+
+        st.markdown(f"<p style='color:purple;'>💡 Financial Tips: {tips}</p>", unsafe_allow_html=True)
 
     except Exception as e:
         st.error(f"Error during prediction: {e}")
