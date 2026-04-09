@@ -2,14 +2,14 @@ import streamlit as st
 import numpy as np
 import joblib
 
-# Load trained model and label encoder
+# Load model and label encoder
 model = joblib.load("credit_model.pkl")
 le = joblib.load("label_encoder.pkl")
 
-# Friendly names for Payment Behaviour
+# Friendly labels for Payment Behaviour
 payment_labels = ["Very Bad", "Bad", "Average", "Good", "Very Good", "Excellent"]
 
-# Mapping for prediction results
+# Prediction mappings
 category_mapping = {0: "Poor", 1: "Standard", 2: "Good"}
 risk_mapping = {0: "High", 1: "Medium", 2: "Low"}
 tips_mapping = {
@@ -32,21 +32,25 @@ payment_index = st.select_slider(
     format_func=lambda x: payment_labels[x]
 )
 
-# Calculate debt ratio automatically
+# Calculate debt_ratio safely
 debt_ratio = debt / income if income > 0 else 0
 
-# Prepare features for prediction
-features = np.array([[income, debt, payment_index, debt_ratio]])
+# Prepare features as 2D array
+features = np.array([[income, debt, payment_index, debt_ratio]], dtype=float)
 
 # Prediction button
 if st.button("Predict"):
-    # Convert prediction to int to avoid KeyError
-    prediction = int(model.predict(features)[0])
+    try:
+        # Convert prediction to Python int to avoid KeyError
+        prediction = int(model.predict(features)[0])
 
-    result = category_mapping[prediction]
-    risk = risk_mapping[prediction]
-    tips = tips_mapping[prediction]
+        result = category_mapping[prediction]
+        risk = risk_mapping[prediction]
+        tips = tips_mapping[prediction]
 
-    st.success(f"Predicted Credit Score Category: {result}")
-    st.warning(f"Risk Level: {risk}")
-    st.info(f"💡 Financial Tips: {tips}")
+        st.success(f"Predicted Credit Score Category: {result}")
+        st.warning(f"Risk Level: {risk}")
+        st.info(f"💡 Financial Tips: {tips}")
+
+    except Exception as e:
+        st.error(f"Error during prediction: {e}")
