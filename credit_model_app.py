@@ -2,54 +2,52 @@ import streamlit as st
 import numpy as np
 import joblib
 
-# -------------------------
-# Load trained objects
-# -------------------------
+# Load model and label encoder
 model = joblib.load("credit_model.pkl")
-le = joblib.load("label_encoder.pkl")  # Payment_Behaviour encoder
+le = joblib.load("label_encoder.pkl")
 
-st.set_page_config(page_title="💳 Credit Score Predictor", layout="centered")
+# Map encoded Payment_Behaviour back to original labels
+payment_classes = list(le.classes_)  # e.g., ['Poor', 'Below Average', 'Average', 'Good', 'Very Good', 'Excellent']
+payment_mapping = {i: cls for i, cls in enumerate(payment_classes)}
+
 st.title("💳 Credit Score Predictor")
-st.write("Enter your financial details to predict your credit score and risk level.")
+st.write("Enter your financial details:")
 
-# -------------------------
-# User Inputs
-# -------------------------
-income = st.number_input("Annual Income", min_value=0.0, step=1000.0, format="%.2f")
-debt = st.number_input("Outstanding Debt", min_value=0.0, step=100.0, format="%.2f")
-payment = st.selectbox("Payment Behaviour", le.classes_)  # dropdown with original categories
+# Inputs
+income = st.number_input("Annual Income", min_value=0.0, step=100.0)
+debt = st.number_input("Outstanding Debt", min_value=0.0, step=100.0)
 
-# -------------------------
+# Slider for Payment Behaviour (show user-friendly names)
+payment_index = st.select_slider(
+    "Payment Behaviour",
+    options=list(range(len(payment_classes))),
+    format_func=lambda x: payment_mapping[x]
+)
+
+# Calculate debt_ratio
+debt_ratio = debt / income if income > 0 else 0
+
+# Prepare features for model
+features = np.array([[income, debt, payment_index, debt_ratio]])
+
 # Prediction
-# -------------------------
 if st.button("Predict"):
-    # Encode Payment_Behaviour
-    payment_encoded = le.transform([payment])[0]
+    prediction = model.predict(features)[0]
 
-    # Calculate debt_ratio
-    debt_ratio = debt / income if income != 0 else 0
-
-    # Prepare feature array
-    features = np.array([[income, debt, payment_encoded, debt_ratio]])
-
-    # Predict
-    pred = model.predict(features)[0]
-
-    # Map prediction to category
-    if pred == 0:
-        category = "Poor"
+    # Map prediction to category names (0=Poor, 1=Standard, 2=Good, adjust if different)
+    if prediction == 0:
+        result = "Poor"
         risk = "High"
-        tips = "Reduce debt and pay bills on time."
-    elif pred == 1:
-        category = "Standard"
+        tips = "Focus on reducing debt and paying bills on time."
+    elif prediction == 1:
+        result = "Standard"
         risk = "Medium"
-        tips = "Maintain regular payments and keep debt low."
+        tips = "Maintain good payment habits and monitor debt."
     else:
-        category = "Good"
+        result = "Good"
         risk = "Low"
         tips = "Keep up good financial habits and low debt."
 
-    # Display results
-    st.success(f"✅ Predicted Credit Score Category: {category}")
-    st.info(f"⚠️ Risk Level: {risk}")
-    st.write(f"💡 Financial Tips: {tips}")
+    st.success(f"Predicted Credit Score Category: {result}")
+    st.warning(f"Risk Level: {risk}")
+    st.info(f"💡 Financial Tips: {tips}")
