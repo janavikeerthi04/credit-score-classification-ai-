@@ -1,64 +1,56 @@
 import pandas as pd
 import numpy as np
-import os
 import zipfile
 import pickle
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
-# --- STEP 1 & 2: LOADING THE ZIP FILE ---
-file_name = "train.csv.zip"
-
+# 1. Load Data
 try:
-    with zipfile.ZipFile(file_name, 'r') as z:
-        csv_name = z.namelist()[0] 
+    with zipfile.ZipFile("train.csv.zip", 'r') as z:
+        csv_name = z.namelist()[0]
         with z.open(csv_name) as f:
-            df = pd.read_csv(f)
-    print(f"✅ SUCCESS: Loaded {csv_name}!")
+            df = pd.read_csv(f, low_memory=False)
+    print("✅ File Loaded Successfully!")
 except Exception as e:
-    print(f"❌ ERROR: Check if '{file_name}' is in your folder. Details: {e}")
+    print(f"❌ Error loading file: {e}")
 
-# --- STEP 4 & 5: PREPROCESSING & CLEANING ---
-try:
-    cols = ['Annual_Income', 'Monthly_Inhand_Salary', 'Num_Bank_Accounts', 
-            'Num_Credit_Card', 'Interest_Rate', 'Num_of_Loan', 
-            'Delay_from_due_date', 'Num_of_Delayed_Payment', 'Outstanding_Debt', 
-            'Credit_Utilization_Ratio', 'Credit_Score']
-    
-    df = df[cols].copy()
+# 2. Select and Clean Columns
+cols = ['Annual_Income', 'Monthly_Inhand_Salary', 'Num_Bank_Accounts', 
+        'Num_Credit_Card', 'Interest_Rate', 'Num_of_Loan', 
+        'Delay_from_due_date', 'Num_of_Delayed_Payment', 'Outstanding_Debt', 
+        'Credit_Utilization_Ratio', 'Credit_Score']
 
-    # FIX: Remove special characters (like '_') and convert to numbers
-    # We use regex to keep only digits and decimal points
-    numeric_cols_to_clean = ['Annual_Income', 'Outstanding_Debt', 'Num_of_Delayed_Payment']
-    for col in numeric_cols_to_clean:
-        df[col] = pd.to_numeric(df[col].astype(str).str.replace(r'[^0-9.]', '', regex=True), errors='coerce')
+df = df[cols].copy()
 
-    # Fill any missing values created by the cleaning process
-    df = df.fillna(df.median(numeric_only=True))
-    
-    # Target Encoding
-    le = LabelEncoder()
-    df['Credit_Score'] = le.fit_transform(df['Credit_Score'].astype(str))
-    
-    # Feature Engineering (Math will work now!)
-    df['debt_ratio'] = df['Outstanding_Debt'] / (df['Annual_Income'] + 1)
-    df['payment_delay_impact'] = df['Num_of_Delayed_Payment'] * df['Interest_Rate']
-    
-    print("✅ SUCCESS: Numbers cleaned and math completed!")
-except Exception as e:
-    print(f"❌ ERROR in Preprocessing: {e}")
+# CLEANING: This part fixes the "str" error by removing non-numeric characters
+for col in ['Annual_Income', 'Outstanding_Debt', 'Num_of_Delayed_Payment']:
+    df[col] = df[col].astype(str).str.replace(r'[^0-9.]', '', regex=True)
+    df[col] = pd.to_numeric(df[col], errors='coerce')
 
-# --- STEP 6 & 7: FEATURES & SPLIT ---
+# Fill missing values created by the cleaning
+df = df.fillna(df.median(numeric_only=True))
+
+# 3. Feature Engineering (This will work now!)
+df['debt_ratio'] = df['Outstanding_Debt'] / (df['Annual_Income'] + 1)
+df['payment_delay_impact'] = df['Num_of_Delayed_Payment'] * df['Interest_Rate']
+
+# 4. Encoding Target
+le = LabelEncoder()
+df['Credit_Score'] = le.fit_transform(df['Credit_Score'].astype(str))
+
+# 5. Define Features & Target
 X = df.drop('Credit_Score', axis=1)
 y = df['Credit_Score']
+
+# 6. Train Model
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# --- STEP 8 - 12: MODEL & SAVE ---
-print("🚀 Training model... please wait...")
+print("🚀 Training AI... this may take a minute...")
 model = XGBClassifier(n_estimators=100, max_depth=6)
 model.fit(X_train, y_train)
 
-# Save the brain
+# 7. Save Model
 pickle.dump(model, open("credit_model.pkl", "wb"))
-print("✅ SUCCESS: 'credit_model.pkl' has been created!")
+print("✅ DONE! 'credit_model.pkl' created. Now run your app.py!")
