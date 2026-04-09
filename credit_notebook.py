@@ -21,26 +21,30 @@ except Exception as e:
 
 # --- STEP 4 & 5: PREPROCESSING & CLEANING ---
 try:
-    # We clean the data specifically for this classification task
     cols = ['Annual_Income', 'Monthly_Inhand_Salary', 'Num_Bank_Accounts', 
             'Num_Credit_Card', 'Interest_Rate', 'Num_of_Loan', 
             'Delay_from_due_date', 'Num_of_Delayed_Payment', 'Outstanding_Debt', 
             'Credit_Utilization_Ratio', 'Credit_Score']
     
     df = df[cols].copy()
-    
-    # Handle missing values (Numerical with median, Categorical with mode)
+
+    # FIX: Clean strings and convert to numbers
+    # This removes underscores or spaces and turns "1234_" into 1234.0
+    for col in ['Annual_Income', 'Outstanding_Debt', 'Num_of_Delayed_Payment']:
+        df[col] = pd.to_numeric(df[col].astype(str).str.replace(r'[^0-9.]', '', regex=True), errors='coerce')
+
+    # Handle missing values created by "coerce" (fill with median)
     df = df.fillna(df.median(numeric_only=True))
     
     # Encode the target (Credit_Score)
     le = LabelEncoder()
     df['Credit_Score'] = le.fit_transform(df['Credit_Score'].astype(str))
     
-    # Feature Engineering (The ratios your Sir requested)
+    # Feature Engineering (Now math will work!)
     df['debt_ratio'] = df['Outstanding_Debt'] / (df['Annual_Income'] + 1)
     df['payment_delay_impact'] = df['Num_of_Delayed_Payment'] * df['Interest_Rate']
     
-    print("✅ SUCCESS: Data Preprocessing complete!")
+    print("✅ SUCCESS: Data Preprocessing complete! Numbers cleaned.")
 except Exception as e:
     print(f"❌ ERROR in Preprocessing: {e}")
 
