@@ -42,6 +42,7 @@ if st.button("Predict"):
         2: "Keep up good financial habits and low debt."
     }
 
+    prediction = int(model.predict(features)[0])
     result = category_mapping[prediction]
     risk = risk_mapping[prediction]
     tips = tips_mapping[prediction]
