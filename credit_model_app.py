@@ -6,8 +6,8 @@ import joblib
 model = joblib.load("credit_model.pkl")
 le = joblib.load("label_encoder.pkl")
 
-# Friendly labels for Payment Behaviour
-payment_labels = ["Very Bad", "Bad", "Average", "Good", "Very Good", "Excellent"]
+# Friendly labels for Payment History
+payment_labels = ["Very Poor History", "Poor History", "Average History", "Good History", "Very Good History", "Excellent History"]
 
 # Risk and tips mapping
 risk_mapping = {"Poor": "High", "Standard": "Medium", "Good": "Low"}
@@ -24,9 +24,8 @@ st.write("Enter your financial details:")
 income = st.number_input("Annual Income", min_value=0.0, step=100.0)
 debt = st.number_input("Outstanding Debt", min_value=0.0, step=100.0)
 
-# Payment Behaviour slider with friendly labels
-payment_index = st.select_slider(
-    "Payment Behaviour",
+payment_history = st.select_slider(
+    "Payment History",
     options=list(range(len(payment_labels))),
     format_func=lambda x: payment_labels[x]
 )
@@ -34,8 +33,7 @@ payment_index = st.select_slider(
 # Calculate debt_ratio safely
 debt_ratio = debt / income if income > 0 else 0
 
-# Prepare features as 2D array
-features = np.array([[income, debt, payment_index, debt_ratio]], dtype=float)
+features = np.array([[income, debt, payment_history, debt_ratio]], dtype=float)
 
 # Prediction button
 if st.button("Predict"):
