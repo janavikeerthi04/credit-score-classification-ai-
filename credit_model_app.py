@@ -61,6 +61,21 @@ if st.button("Predict"):
             unsafe_allow_html=True
         )
 
+        # ---------------- LOAN APPROVAL SYSTEM ----------------
+        st.subheader("🏦 Loan Approval Suggestion")
+
+        if risk == "Low" and debt_ratio < 0.4:
+            st.success("✅ Loan Approved")
+            st.write("Reason: Low risk and strong financial profile")
+
+        elif risk == "Medium" and debt_ratio < 0.6:
+            st.warning("⚠️ Loan Approved with Conditions")
+            st.write("Reason: Moderate risk. Bank may apply higher interest or checks")
+
+        else:
+            st.error("❌ Loan Rejected")
+            st.write("Reason: High risk or high debt level")
+
         # ---------------- EXPLAINABLE AI ----------------
         st.subheader("🧠 Why this prediction? (Explainable AI)")
 
