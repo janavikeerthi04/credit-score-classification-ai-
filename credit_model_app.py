@@ -38,14 +38,14 @@ features = np.array([[income, debt, payment_history, debt_ratio]], dtype=float)
 # Prediction button
 if st.button("Predict"):
     try:
-        # Model prediction returns string category
+        # Model prediction
         prediction = model.predict(features)[0]
         result = prediction
 
         risk = risk_mapping[result]
         tips = tips_mapping[result]
 
-        # Colored outputs using markdown
+        # Result display
         st.markdown(f"<h2 style='color:green;'>💳 Predicted Credit Score: {result}</h2>", unsafe_allow_html=True)
 
         if risk == "High":
@@ -55,11 +55,44 @@ if st.button("Predict"):
         else:
             st.markdown(f"<h3 style='color:blue;'>⚠️ Risk Level: {risk}</h3>", unsafe_allow_html=True)
 
-        # Big, bright financial tips
+        # Financial tips
         st.markdown(
             f"<p style='color:#ff00ff; font-size:22px; font-weight:bold;'>💡 Financial Tips: {tips}</p>",
             unsafe_allow_html=True
         )
+
+        # ---------------- EXPLAINABLE AI ----------------
+        st.subheader("🧠 Why this prediction? (Explainable AI)")
+
+        explanation = []
+
+        # Income impact
+        if income > 500000:
+            explanation.append("✅ High income improves your credit score")
+        else:
+            explanation.append("⚠️ Lower income may affect your score")
+
+        # Debt impact
+        if debt > income * 0.5:
+            explanation.append("❌ High debt negatively impacts your score")
+        else:
+            explanation.append("✅ Low debt helps maintain a good score")
+
+        # Payment history impact
+        if payment_history >= 3:
+            explanation.append("✅ Good payment history improves your score")
+        else:
+            explanation.append("❌ Poor payment history lowers your score")
+
+        # Debt ratio impact
+        if debt_ratio > 0.5:
+            explanation.append("❌ High debt ratio increases financial risk")
+        else:
+            explanation.append("✅ Healthy debt ratio is beneficial")
+
+        # Display explanation
+        for point in explanation:
+            st.write(point)
 
     except Exception as e:
         st.error(f"Error during prediction: {e}")
