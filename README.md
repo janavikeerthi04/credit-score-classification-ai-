@@ -51,7 +51,9 @@ based on their financial behavior.
 
 - **Credit Score Category** → Poor / Standard / Good  
 - **Risk Level** → High / Medium / Low  
-- **Financial Tips** → Suggestions to improve financial health  
+- **Financial Tips** → Suggestions to improve financial health
+- **Loan approvable suggestion** → Approved/ with condition / rejected
+- **Explainable AI**
 
 ---
 
