@@ -66,6 +66,7 @@ based on their financial behavior.
 ---
 
 ## 📂 Project Structure
+credit-score-classification-ai/ │ ├── credit_model.pkl        # Trained ML model ├── credit_model_app.py     # Streamlit application ├── requirements.txt        # Dependencies └── README.md               # Project documentation
 ---
 
 ## 🌐 Deployment
