@@ -1,7 +1,6 @@
 import streamlit as st
 import numpy as np
 import joblib
-import pandas as pd
 
 # Load trained model and label encoder
 model = joblib.load("credit_model.pkl")
@@ -62,31 +61,38 @@ if st.button("Predict"):
             unsafe_allow_html=True
         )
 
-        # ---------------- REAL EXPLAINABLE AI ----------------
-        st.subheader("🧠 Why this prediction? (Model-Based Explainable AI)")
+        # ---------------- EXPLAINABLE AI ----------------
+        st.subheader("🧠 Why this prediction? (Explainable AI)")
 
-        # Feature names (must match training order)
-        feature_names = ["Income", "Debt", "Payment History", "Debt Ratio"]
+        explanation = []
 
-        # Get feature importance from model
-        importances = model.feature_importances_
+        # Income impact
+        if income > 500000:
+            explanation.append("✅ High income improves your credit score")
+        else:
+            explanation.append("⚠️ Lower income may affect your score")
 
-        # Create dataframe
-        importance_df = pd.DataFrame({
-            "Feature": feature_names,
-            "Importance": importances
-        }).sort_values(by="Importance", ascending=False)
+        # Debt impact
+        if debt > income * 0.5:
+            explanation.append("❌ High debt negatively impacts your score")
+        else:
+            explanation.append("✅ Low debt helps maintain a good score")
 
-        # Show importance graph
-        st.bar_chart(importance_df.set_index("Feature"))
+        # Payment history impact
+        if payment_history >= 3:
+            explanation.append("✅ Good payment history improves your score")
+        else:
+            explanation.append("❌ Poor payment history lowers your score")
 
-        # Show top 2 important features
-        st.write("🔍 Top factors affecting your score:")
+        # Debt ratio impact
+        if debt_ratio > 0.5:
+            explanation.append("❌ High debt ratio increases financial risk")
+        else:
+            explanation.append("✅ Healthy debt ratio is beneficial")
 
-        top_features = importance_df.head(2)
-
-        for _, row in top_features.iterrows():
-            st.write(f"👉 {row['Feature']} has high impact on prediction")
+        # Display explanation
+        for point in explanation:
+            st.write(point)
 
     except Exception as e:
         st.error(f"Error during prediction: {e}")
