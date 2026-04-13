@@ -64,11 +64,6 @@ based on their financial behavior.
 - Joblib
 
 ---
-
-## 📂 Project Structure
-credit-score-classification-ai/ │ ├── credit_model.pkl        # Trained ML model ├── credit_model_app.py     # Streamlit application ├── requirements.txt        # Dependencies └── README.md               # Project documentation
----
-
 ## 🌐 Deployment
 
 This app can be deployed using:
@@ -98,7 +93,7 @@ This app can be deployed using:
 
 ## 👩‍💻 Author
 
-Developed by **janavi**
+Developed by **JANAVI M , Chandana KR , Bhumika **
 
 ---
 
