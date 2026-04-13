@@ -95,7 +95,7 @@ This app can be deployed using:
 
 ## 👩‍💻 Author
 
-Developed by **JANAVI M , Chandana KR , Bhumika **
+Developed by **JANAVI M ,Chandana KR**
 
 ---
 
